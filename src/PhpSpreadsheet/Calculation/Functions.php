@@ -217,10 +217,8 @@ class Functions
                $lookupArrayKey = md5(serialize($array));
 
                if (isset(self::$cachedLookupArrayCache[$lookupArrayKey])) {
-                   echo "cached";
                    return self::$cachedLookupArrayCache[$lookupArrayKey];
                } else {
-                   echo "not cached";        
                    $flattened = [];
                    $stack = array_values($array);
            
