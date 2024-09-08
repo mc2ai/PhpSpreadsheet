@@ -488,20 +488,30 @@ abstract class Coordinate
         return $cells;
     }
 
+    // cache the result of sortCellReferenceArray
+    private static $sortCellReferenceArrayCache = [];
     private static function sortCellReferenceArray(array $cellList): array
     {
-        //    Sort the result by column and row
-        $sortKeys = [];
-        foreach ($cellList as $coordinate) {
-            $column = '';
-            $row = 0;
-            sscanf($coordinate, '%[A-Z]%d', $column, $row);
-            $key = (--$row * 16384) + self::columnIndexFromString((string) $column);
-            $sortKeys[$key] = $coordinate;
+        $lookupArrayKey = md5(serialize($cellList));
+        if (isset(self::$sortCellReferenceArrayCache[$lookupArrayKey])) {
+            return self::$sortCellReferenceArrayCache[$lookupArrayKey];
         }
-        ksort($sortKeys);
+        else {
+            //    Sort the result by column and row
+            $sortKeys = [];
+            foreach ($cellList as $coordinate) {
+                $column = '';
+                $row = 0;
+                sscanf($coordinate, '%[A-Z]%d', $column, $row);
+                $key = (--$row * 16384) + self::columnIndexFromString((string) $column);
+                $sortKeys[$key] = $coordinate;
+            }
+            ksort($sortKeys);
 
-        return array_values($sortKeys);
+            $result = array_values($sortKeys);
+            self::$sortCellReferenceArrayCache[$lookupArrayKey] = $result;
+            return $result;
+        }
     }
 
     /**

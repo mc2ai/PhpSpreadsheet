@@ -206,26 +206,36 @@ class Functions
      *
      * @return array Flattened array
      */
+    static $cachedLookupArrayCache = [];
+
     public static function flattenArray(mixed $array): array
     {
         if (!is_array($array)) {
             return (array) $array;
         }
+               // Generate a unique key for the lookup array
+               $lookupArrayKey = md5(serialize($array));
 
-        $flattened = [];
-        $stack = array_values($array);
-
-        while (!empty($stack)) {
-            $value = array_shift($stack);
-
-            if (is_array($value)) {
-                array_unshift($stack, ...array_values($value));
-            } else {
-                $flattened[] = $value;
-            }
-        }
-
-        return $flattened;
+               if (isset(self::$cachedLookupArrayCache[$lookupArrayKey])) {
+                   echo "cached";
+                   return self::$cachedLookupArrayCache[$lookupArrayKey];
+               } else {
+                   echo "not cached";        
+                   $flattened = [];
+                   $stack = array_values($array);
+           
+                   while (!empty($stack)) {
+                       $value = array_shift($stack);
+           
+                       if (is_array($value)) {
+                           array_unshift($stack, ...array_values($value));
+                       } else {
+                           $flattened[] = $value;
+                       }
+                   }
+                   self::$cachedLookupArrayCache[$lookupArrayKey] = $flattened;
+                   return $flattened;
+               }
     }
 
     public static function scalar(mixed $value): mixed
